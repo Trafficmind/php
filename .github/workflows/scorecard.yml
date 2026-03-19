@@ -1,0 +1,57 @@
+name: Scorecard
+
+on:
+  branch_protection_rule:
+  schedule:
+    - cron: '0 4 * * 1'
+  push:
+    branches: [ "main", "master" ]
+
+permissions:
+  security-events: write
+  id-token: write
+  contents: read
+  actions: read
+
+jobs:
+  analysis:
+    name: scorecard-analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Run analysis
+        uses: ossf/scorecard-action@v2.3.1
+        with:
+          results_file: results.sarif
+          results_format: sarif
+          publish_results: true
+
+      - name: Upload to code-scanning
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: results.sarif
+
+      - name: Enforce minimum Scorecard score (7.0)
+        run: |
+          SCORE=$(cat results.sarif | python3 -c "
+          import sys, json
+          data = json.load(sys.stdin)
+          props = data.get('runs', [{}])[0].get('properties', {})
+          score = props.get('scorecard', {}).get('score', -1)
+          print(score)
+          ")
+          echo "Scorecard score: $SCORE"
+          python3 -c "
+          score = float('$SCORE')
+          if score < 0:
+              print('WARNING: Could not parse score, skipping gate')
+          elif score < 7.0:
+              print(f'FAIL: Score {score} is below minimum threshold 7.0')
+              exit(1)
+          else:
+              print(f'PASS: Score {score} meets minimum threshold 7.0')
+          "

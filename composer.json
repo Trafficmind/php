@@ -1,0 +1,56 @@
+{
+  "name": "trafficmind/php",
+  "description": "PHP client (SDK) for Trafficmind API",
+  "type": "library",
+  "license": "Apache-2.0",
+  "keywords": [
+    "trafficmind",
+    "api",
+    "client",
+    "sdk",
+    "cdn",
+    "dns",
+    "firewall",
+    "domains"
+  ],
+  "require": {
+    "php": "^8.1 || ^8.2 || ^8.3 || ^8.4",
+    "ext-curl": "*",
+    "ext-json": "*",
+    "guzzlehttp/guzzle": "^7.8",
+    "psr/http-client": "^1.0",
+    "psr/http-factory": "^1.0",
+    "psr/log": "^1.1 || ^2.0 || ^3.0"
+  },
+  "require-dev": {
+    "ext-simplexml": "*",
+    "phpunit/phpunit": "^10.5",
+    "phpstan/phpstan": "^1.12",
+    "friendsofphp/php-cs-fixer": "^3.64",
+    "vlucas/phpdotenv": "^5.6"
+  },
+  "autoload": {
+    "psr-4": {
+      "Trafficmind\\Api\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Trafficmind\\Api\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "test":           "vendor/bin/phpunit --testsuite Unit",
+    "coverage":       "vendor/bin/phpunit --testsuite Unit --coverage-html coverage/html",
+    "coverage-check": "vendor/bin/phpunit --testsuite Unit --coverage-clover coverage/clover.xml",
+    "analyse":        "vendor/bin/phpstan analyse",
+    "cs-check":       "vendor/bin/php-cs-fixer fix --dry-run --diff",
+    "cs-fix":         "vendor/bin/php-cs-fixer fix",
+    "check":          ["@cs-check", "@analyse", "@test"]
+  },
+  "config": {
+    "sort-packages": true
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true
+}
